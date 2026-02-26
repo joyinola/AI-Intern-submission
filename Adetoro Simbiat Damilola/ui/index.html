@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Check Me — Dashboard</title>
+<link rel="stylesheet" href="css/app.css"/>
+<style>
+.hero-banner {
+  background: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 55%, #d44638 100%);
+  border-radius:12px; padding:32px 36px; color:white;
+  display:flex; align-items:center; gap:32px;
+  margin-bottom:24px; position:relative; overflow:hidden;
+}
+.hero-banner::before {
+  content:''; position:absolute; top:-50px; right:-50px;
+  width:240px; height:240px;
+  background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 70%);
+  border-radius:50%;
+}
+.hero-banner::after {
+  content:''; position:absolute; bottom:-70px; left:35%;
+  width:180px; height:180px;
+  background:radial-gradient(circle,rgba(255,255,255,0.06),transparent 70%);
+  border-radius:50%;
+}
+.hero-text { flex:1; position:relative; z-index:1; }
+.hero-pre  { font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:8px; }
+.hero-h1   { font-family:var(--font-head); font-size:38px; font-weight:900; letter-spacing:-0.01em; line-height:1.1; margin-bottom:10px; }
+.hero-body { font-size:14px; color:rgba(255,255,255,0.75); line-height:1.6; max-width:440px; }
+.hero-cta  { display:inline-flex; align-items:center; gap:8px; background:white; color:var(--red); border:none; border-radius:8px; padding:12px 24px; font-family:var(--font-head); font-size:13px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; margin-top:20px; box-shadow:0 4px 16px rgba(0,0,0,0.18); text-decoration:none; transition:opacity 0.15s; }
+.hero-cta:hover { opacity:0.9; }
+.hero-stat { position:relative; z-index:1; text-align:center; padding:16px 28px; background:rgba(0,0,0,0.18); border-radius:10px; min-width:150px; }
+.hero-stat-n { font-family:var(--font-head); font-size:44px; font-weight:900; line-height:1; letter-spacing:-0.02em; }
+.hero-stat-l { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-top:4px; }
+
+.stat-card { background:white; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:0 1px 8px rgba(0,0,0,0.05); }
+.stat-lbl { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid-grey); margin-bottom:8px; }
+.stat-val { font-family:var(--font-head); font-size:30px; font-weight:900; line-height:1; letter-spacing:-0.02em; }
+.stat-sub { font-size:12px; color:var(--text-sub); margin-top:4px; }
+
+.tier-action { margin-right:16px; padding:6px 14px; border-radius:6px; border:none; font-family:var(--font-head); font-size:11px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; white-space:nowrap; transition:opacity 0.15s; }
+.tier-action:hover { opacity:0.82; }
+
+.preset-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.preset-btn  { padding:14px 10px; border-radius:8px; border:none; color:white; font-family:var(--font-head); font-size:13px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; transition:opacity 0.15s, transform 0.1s; }
+.preset-btn:active { opacity:0.82; transform:scale(0.97); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="sb"></div>
+  <div class="main">
+
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-sub">Breast Cancer Risk Stratification</div>
+      <div class="topbar-right">
+        <a href="assess.html" class="btn btn-primary">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          New Assessment
+        </a>
+      </div>
+    </div>
+
+    <div class="page">
+
+      <!-- Hero -->
+      <div class="hero-banner fi">
+        <div class="hero-text">
+          <div class="hero-pre">Clinical Decision Support</div>
+          <div class="hero-h1">Check Me<br>Risk Engine</div>
+          <div class="hero-body">Hybrid logistic regression + clinical safety flags for breast cancer risk stratification. Four-tier output grounded in ACS 2023, NICE NG101, and BI-RADS 5th edition.</div>
+          <a href="assess.html" class="hero-cta">Begin Assessment →</a>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n">1.00</div>
+          <div class="hero-stat-l">ROC-AUC</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4 fi fi-1" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-lbl">Model Type</div>
+          <div class="stat-val" style="font-size:18px;color:var(--red);">Logistic<br>Regression</div>
+          <div class="stat-sub">+ Clinical Safety Flags</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Training Samples</div>
+          <div class="stat-val">3,000</div>
+          <div class="stat-sub">Synthetic patients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Recall (Sensitivity)</div>
+          <div class="stat-val" style="color:var(--green);">99.8%</div>
+          <div class="stat-sub">Minimises missed cases</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Safety Flags</div>
+          <div class="stat-val">8</div>
+          <div class="stat-sub">Clinical rule overrides</div>
+        </div>
+      </div>
+
+      <!-- Two columns -->
+      <div class="col-2-1 fi fi-2">
+        <div>
+          <div class="sec-label">Risk Tier Overview</div>
+
+          <div class="cat-row clickable" onclick="go('routine')">
+            <div class="cat-badge badge-R">R</div>
+            <div class="cat-info">
+              <div class="cat-title c-R">ROUTINE</div>
+              <div class="cat-sub">P &lt; 28% · Standard annual screening pathway</div>
+            </div>
+            <button class="tier-action" style="background:var(--green-lt);color:var(--green);">Load Example</button>
+          </div>
+
+          <div class="cat-row clickable" onclick="go('elevated')">
+            <div class="cat-badge badge-E">E</div>
+            <div class="cat-info">
+              <div class="cat-title c-E">ELEVATED</div>
+              <div class="cat-sub">P 28–48% · GP referral within 6 weeks</div>
+            </div>
+            <button class="tier-action" style="background:#fef9ec;color:var(--yellow);">Load Example</button>
+          </div>
+
+          <div class="cat-row clickable" onclick="go('high')">
+            <div class="cat-badge badge-H">H</div>
+            <div class="cat-info">
+              <div class="cat-title c-H">HIGH</div>
+              <div class="cat-sub">P 48–72% · Urgent breast clinic within 2 weeks</div>
+            </div>
+            <button class="tier-action" style="background:var(--red-light);color:var(--red);">Load Example</button>
+          </div>
+
+          <div class="cat-row clickable" onclick="go('urgent')">
+            <div class="cat-badge badge-U">U</div>
+            <div class="cat-info">
+              <div class="cat-title c-U">URGENT</div>
+              <div class="cat-sub">P ≥ 72% or IMMEDIATE flag · 2WW referral today</div>
+            </div>
+            <button class="tier-action" style="background:var(--purple-lt);color:var(--purple);">Load Example</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Model performance -->
+          <div class="card">
+            <div class="card-head">
+              <span class="card-head-title">Model Performance</span>
+              <span class="card-head-sub">5-Fold CV</span>
+            </div>
+            <div class="card-body" style="padding:14px 20px;">
+              <div class="perf-row"><span class="perf-lbl">ROC-AUC</span><div class="perf-track"><div class="perf-fill" style="width:100%;background:var(--red);"></div></div><span class="perf-val">1.000</span></div>
+              <div class="perf-row"><span class="perf-lbl">Recall</span><div class="perf-track"><div class="perf-fill" style="width:99.8%;background:var(--green);"></div></div><span class="perf-val" style="color:var(--green);">0.998</span></div>
+              <div class="perf-row"><span class="perf-lbl">Precision</span><div class="perf-track"><div class="perf-fill" style="width:100%;background:var(--yellow);"></div></div><span class="perf-val" style="color:var(--yellow);">1.000</span></div>
+              <div class="perf-row"><span class="perf-lbl">F1 Score</span><div class="perf-track"><div class="perf-fill" style="width:99.9%;background:var(--red);"></div></div><span class="perf-val">0.999</span></div>
+              <div class="perf-row"><span class="perf-lbl">Brier Score</span><div class="perf-track"><div class="perf-fill" style="width:1%;background:var(--green);"></div></div><span class="perf-val" style="color:var(--green);">0.000</span></div>
+            </div>
+          </div>
+
+          <!-- Quick presets -->
+          <div class="card">
+            <div class="card-head"><span class="card-head-title">Quick Load</span><span class="card-head-sub">Example patients</span></div>
+            <div class="card-body">
+              <div class="preset-grid">
+                <button class="preset-btn" style="background:var(--green);"  onclick="go('routine')">Routine</button>
+                <button class="preset-btn" style="background:var(--yellow);" onclick="go('elevated')">Elevated</button>
+                <button class="preset-btn" style="background:var(--red);"    onclick="go('high')">High Risk</button>
+                <button class="preset-btn" style="background:var(--purple);" onclick="go('urgent')">Urgent</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;" class="fi fi-3">
+        <div class="disclaimer"><strong>⚕ Clinical Decision Support Only.</strong> Check Me does not diagnose breast cancer. All outputs must be validated by a qualified clinician. Based on: ACS 2023 · NICE NG101 · BI-RADS 5th Edition · WHO 2023.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/model.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = buildSidebar('dashboard');
+  function go(preset) {
+    const s = {...DEFAULT_STATE,...PRESETS[preset]};
+    saveState(s);
+    saveResult({...scorePatient(s), state:s});
+    window.location.href = 'results.html';
+  }
+</script>
+</body>
+</html>

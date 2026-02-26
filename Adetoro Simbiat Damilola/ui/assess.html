@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Check Me — Assessment</title>
+<link rel="stylesheet" href="css/app.css"/>
+<style>
+.assess-wrap { max-width:680px; margin:0 auto; }
+.assess-topbar { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.step-counter  { font-family:var(--font-head); font-size:13px; font-weight:800; color:var(--mid-grey); letter-spacing:0.08em; text-transform:uppercase; }
+.progress-bar-outer { flex:1; height:6px; background:var(--lt-grey); border-radius:99px; overflow:hidden; }
+.progress-bar-inner { height:100%; background:var(--red); border-radius:99px; transition:width 0.4s ease; }
+
+/* FNA grid */
+.fna-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.fna-field { padding:14px 22px; border-bottom:1px solid var(--lt-grey); border-right:1px solid var(--lt-grey); }
+.fna-field:nth-child(even) { border-right:none; }
+.fna-label { font-size:12px; font-weight:700; color:var(--dk-grey); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em; }
+.fna-unit  { font-size:10px; color:var(--mid-grey); font-weight:400; margin-left:4px; }
+.fna-mini-row { display:flex; align-items:center; border:1px solid var(--lt-grey); border-radius:6px; overflow:hidden; }
+.fna-btn { width:36px; height:36px; background:var(--off-white); border:none; cursor:pointer; font-size:18px; color:var(--dk-grey); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.1s; }
+.fna-btn:active { background:var(--lt-grey); }
+.fna-btn.plus { background:var(--red); color:white; }
+.fna-inp { flex:1; border:none; outline:none; text-align:center; font-family:var(--font-head); font-size:16px; font-weight:800; color:var(--text); background:white; height:36px; border-left:1px solid var(--lt-grey); border-right:1px solid var(--lt-grey); -moz-appearance:textfield; }
+.fna-inp::-webkit-outer-spin-button, .fna-inp::-webkit-inner-spin-button { -webkit-appearance:none; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="sb"></div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">New Assessment</div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-sub" id="step-label">Step 1 of 12</div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost" onclick="resetAssess()">Reset</button>
+      </div>
+    </div>
+    <div class="page">
+      <div class="assess-wrap">
+        <div class="assess-topbar fi">
+          <div class="step-counter" id="step-counter">Step 1 / 12</div>
+          <div class="progress-bar-outer">
+            <div class="progress-bar-inner" id="prog" style="width:0%"></div>
+          </div>
+          <button class="btn btn-ghost" id="btn-back" onclick="prevStep()">← Back</button>
+        </div>
+        <div id="step-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/model.js"></script>
+<script>
+document.getElementById('sb').innerHTML = buildSidebar('assess');
+
+let state = loadState();
+let step  = 0;
+
+const STEPS = [
+  { type:'num', key:'age',                 q:"Patient age?",                                  hint:"Age is a primary breast cancer risk factor. Risk increases significantly after 40.",                  unit:'years', min:18, max:100, s:1 },
+  { type:'num', key:'bmi',                 q:"Body Mass Index (BMI)?",                        hint:"Obesity increases post-menopausal breast cancer risk through elevated oestrogen levels.",              unit:'kg/m²', min:14, max:60,  s:0.5 },
+  { type:'num', key:'alcohol_drinks_week', q:"Alcohol consumption?",                          hint:"Each additional 10g of alcohol per day raises relative risk by ~7-10% (IARC 2010).",                 unit:'drinks / week', min:0, max:30, s:1 },
+  { type:'yn',  key:'family_history_bc',   q:"First-degree family history of breast cancer?",  hint:"Mother, sister, or daughter diagnosed with breast cancer. Doubles baseline risk." },
+  { type:'yn',  key:'brca_mutation',        q:"Known BRCA1 or BRCA2 mutation?",               hint:"Confirmed pathogenic variant via genetic testing. Lifetime risk 55–72% (BRCA1) or 45–69% (BRCA2)." },
+  { type:'yn',  key:'prior_biopsy',         q:"Prior breast biopsy?",                          hint:"Any previous biopsy of breast tissue. Atypical hyperplasia on biopsy raises risk 4-fold." },
+  { type:'yn',  key:'hrt_use',              q:"Currently using Hormone Replacement Therapy?",  hint:"Combined oestrogen-progestogen HRT increases risk. Duration and type of HRT matter." },
+  { type:'yn',  key:'dense_breast',         q:"Dense breast tissue confirmed?",                hint:"BI-RADS category C or D on recent mammography. Dense tissue masks lesions and raises risk." },
+  { type:'yn',  key:'palpable_lump',        q:"Palpable lump on examination?",                hint:"Any discrete lump detected by clinical or self-examination. Asymmetric lumps are particularly significant." },
+  { type:'yn',  key:'nipple_discharge',     q:"Spontaneous nipple discharge?",                 hint:"Non-lactational discharge, especially if bloody, unilateral, or from a single duct." },
+  { type:'yn',  key:'skin_changes',         q:"Skin dimpling or peau d'orange?",              hint:"Any skin texture changes, tethering, erythema or dimpling over the breast. Classic sign of malignancy." },
+  { type:'fna', q:"FNA Nucleus Measurements",                                                   hint:"Enter values from fine needle aspirate cytology. Leave defaults if not yet available — they can be updated later." },
+];
+
+const FNA_FIELDS = [
+  { key:'radius_mean',          label:'Radius Mean',          unit:'',    min:4,   max:35,   s:0.5  },
+  { key:'texture_mean',         label:'Texture Mean',         unit:'',    min:5,   max:50,   s:0.5  },
+  { key:'area_mean',            label:'Area Mean',            unit:'µm²', min:100, max:2500, s:10   },
+  { key:'concavity_mean',       label:'Concavity Mean',       unit:'',    min:0,   max:0.45, s:0.01 },
+  { key:'concave_points_mean',  label:'Concave Pts Mean',     unit:'',    min:0,   max:0.20, s:0.005},
+  { key:'radius_worst',         label:'Radius Worst',         unit:'',    min:6,   max:36,   s:0.5  },
+  { key:'area_worst',           label:'Area Worst',           unit:'µm²', min:150, max:4000, s:10   },
+  { key:'concavity_worst',      label:'Concavity Worst',      unit:'',    min:0,   max:1,    s:0.01 },
+  { key:'concave_pts_worst',    label:'Concave Pts Worst',    unit:'',    min:0,   max:0.30, s:0.005},
+];
+
+function render() {
+  const s = STEPS[step], total = STEPS.length;
+  const pct = Math.round(step / total * 100);
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('step-counter').textContent = `Step ${step+1} / ${total}`;
+  document.getElementById('step-label').textContent   = `Step ${step+1} of ${total}`;
+  document.getElementById('btn-back').style.visibility = step === 0 ? 'hidden' : 'visible';
+
+  let inner = '';
+
+  if (s.type === 'yn') {
+    const y = state[s.key]===1, n = state[s.key]===0;
+    inner = `
+      <div class="yn-row">
+        <button class="yn-btn yes${y?' sel-y':''}" id="yn-y" onclick="pickYN(1)">YES<span class="yn-hint">Confirmed</span></button>
+        <button class="yn-btn no${n?' sel-n':''}"  id="yn-n" onclick="pickYN(0)">NO<span class="yn-hint">Not present</span></button>
+      </div>`;
+  } else if (s.type === 'num') {
+    const v = state[s.key] ?? s.min;
+    inner = `
+      <div class="stepper-wrap">
+        <div class="stepper-row">
+          <button class="stp-btn" onclick="adj('${s.key}',${-s.s},${s.min},${s.max})">−</button>
+          <input class="stp-val" id="nf-${s.key}" type="number" value="${v}" min="${s.min}" max="${s.max}" step="${s.s}" onchange="state['${s.key}']=parseFloat(this.value)||${s.min}"/>
+          <button class="stp-btn plus" onclick="adj('${s.key}',${s.s},${s.min},${s.max})">+</button>
+        </div>
+        <div class="stp-unit">${s.unit}</div>
+      </div>`;
+  } else { // fna
+    inner = `<div class="fna-grid">${FNA_FIELDS.map(f=>`
+      <div class="fna-field">
+        <div class="fna-label">${f.label}<span class="fna-unit">${f.unit}</span></div>
+        <div class="fna-mini-row">
+          <button class="fna-btn" onclick="adj('${f.key}',${-f.s},${f.min},${f.max})">−</button>
+          <input class="fna-inp" id="nf-${f.key}" type="number" value="${state[f.key]??f.min}" min="${f.min}" max="${f.max}" step="${f.s}" onchange="state['${f.key}']=parseFloat(this.value)||${f.min}"/>
+          <button class="fna-btn plus" onclick="adj('${f.key}',${f.s},${f.min},${f.max})">+</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  const isLast = step === total - 1;
+  document.getElementById('step-content').innerHTML = `
+    <div class="step-card fi">
+      <div class="step-card-lbl">Step ${step+1} of ${total} · Breast Cancer Risk</div>
+      <div class="step-card-q">${s.q}</div>
+      <div class="step-card-hint">${s.hint}</div>
+      ${inner}
+    </div>
+    <div class="continue-bar">
+      <button class="btn-continue" onclick="nextStep()">
+        ${isLast ? 'VIEW RESULTS →' : 'CONTINUE →'}
+      </button>
+    </div>`;
+}
+
+function pickYN(v) {
+  const s = STEPS[step];
+  state[s.key] = v;
+  document.getElementById('yn-y').className = `yn-btn yes${v===1?' sel-y':''}`;
+  document.getElementById('yn-n').className = `yn-btn no${v===0?' sel-n':''}`;
+}
+
+function adj(key, delta, min, max) {
+  const el = document.getElementById('nf-'+key);
+  let v = parseFloat(el?.value || state[key] || 0);
+  v = Math.max(min, Math.min(max, parseFloat((v+delta).toFixed(4))));
+  state[key] = v;
+  if (el) el.value = v;
+}
+
+function nextStep() {
+  saveState(state);
+  if (step < STEPS.length-1) { step++; render(); window.scrollTo(0,0); }
+  else { saveResult({...scorePatient(state), state}); window.location.href='results.html'; }
+}
+
+function prevStep() {
+  if (step > 0) { step--; render(); window.scrollTo(0,0); }
+}
+
+function resetAssess() {
+  state = {...DEFAULT_STATE}; step = 0; render();
+}
+
+render();
+</script>
+</body>
+</html>
