@@ -1,0 +1,9 @@
+FROM nginx:1.25-alpine
+
+# Copy the desktop UI into Nginx's web root
+COPY ui/ /usr/share/nginx/html/
+
+# Replace the default Nginx config with our reverse-proxy config
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80

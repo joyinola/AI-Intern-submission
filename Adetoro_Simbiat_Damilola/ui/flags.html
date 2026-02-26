@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Check Me — Safety Flags</title>
+<link rel="stylesheet" href="css/app.css"/>
+<style>
+.flag-table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; box-shadow:0 1px 8px rgba(0,0,0,0.05); }
+.flag-table th { background:var(--red); color:white; font-family:var(--font-head); font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; padding:12px 16px; text-align:left; }
+.flag-table td { padding:13px 16px; font-size:13px; border-bottom:1px solid var(--lt-grey); vertical-align:top; }
+.flag-table tr:last-child td { border-bottom:none; }
+.flag-table tr:hover td { background:var(--off-white); }
+.urg-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:900; letter-spacing:0.1em; text-transform:uppercase; }
+.urg-imm { background:var(--red-light); color:var(--red); }
+.urg-prm { background:#fef9ec; color:var(--yellow); }
+.summary-pill { display:inline-flex; align-items:center; gap:6px; background:white; border:1px solid var(--border); border-radius:8px; padding:12px 18px; font-size:13px; font-weight:600; color:var(--dk-grey); box-shadow:0 1px 5px rgba(0,0,0,0.05); }
+.pill-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="sb"></div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Safety Flags</div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-sub">Clinical rule-based overrides</div>
+      <div class="topbar-right">
+        <a href="assess.html" class="btn btn-primary">+ New Assessment</a>
+      </div>
+    </div>
+    <div class="page">
+
+      <!-- Summary cards -->
+      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;" class="fi">
+        <div class="summary-pill">
+          <div class="pill-dot" style="background:var(--red);"></div>
+          3 IMMEDIATE flags — force URGENT tier
+        </div>
+        <div class="summary-pill">
+          <div class="pill-dot" style="background:var(--yellow);"></div>
+          5 PROMPT flags — escalate to HIGH or above
+        </div>
+        <div class="summary-pill">
+          <div class="pill-dot" style="background:var(--dk-grey);"></div>
+          Always evaluated regardless of ML score
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div class="card fi fi-1" style="margin-bottom:24px;">
+        <div class="card-head"><span class="card-head-title">How Safety Flags Work</span></div>
+        <div class="card-body">
+          <p style="font-size:14px;line-height:1.7;color:var(--dk-grey);max-width:720px;">
+            Safety flags are evaluated <strong>before</strong> the machine learning model. They are hard-coded clinical rules grounded in published oncology guidelines. When a flag is triggered, it is always surfaced to the clinician — regardless of the ML probability score.
+            <br><br>
+            <strong>IMMEDIATE flags</strong> (red) override the ML output and force the <strong>URGENT</strong> risk tier. These represent combinations of findings that require same-day clinical action.
+            <br><br>
+            <strong>PROMPT flags</strong> (amber) escalate the risk tier to at least <strong>HIGH</strong>. If the ML model already scores HIGH or URGENT, the flag adds additional clinical context without changing the tier.
+          </p>
+        </div>
+      </div>
+
+      <!-- Flags table -->
+      <div class="sec-label fi fi-2">All 8 Clinical Safety Flags</div>
+      <div class="fi fi-3" style="overflow-x:auto;">
+        <table class="flag-table" id="flags-table">
+          <thead>
+            <tr>
+              <th style="width:140px;">Flag ID</th>
+              <th style="width:100px;">Urgency</th>
+              <th>Condition</th>
+              <th>Clinical Rationale</th>
+              <th style="width:120px;">Triggered When</th>
+            </tr>
+          </thead>
+          <tbody id="flags-tbody"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:20px;" class="fi fi-4">
+        <div class="disclaimer"><strong>⚕ Clinical Basis.</strong> All flags cite peer-reviewed guidelines: ACS 2023 · NICE NG101 · BI-RADS 5th Edition. This tool is a research demonstration and must not be used as the sole basis for clinical decisions.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/model.js"></script>
+<script>
+document.getElementById('sb').innerHTML = buildSidebar('flags');
+
+const TRIGGER_LABELS = {
+  brca_palpable:  'BRCA = Yes AND Palpable lump = Yes',
+  skin_nipple:    'Skin changes = Yes AND Nipple discharge = Yes',
+  skin_change:    'Skin changes = Yes',
+  brca_known:     'BRCA = Yes',
+  fh_lump:        'Family history = Yes AND Palpable lump = Yes',
+  high_concavity: 'Concavity worst > 0.70',
+  large_area:     'Area worst > 2,000 µm²',
+  age_brca:       'Age > 30 AND BRCA = Yes',
+};
+
+document.getElementById('flags-tbody').innerHTML = CLINICAL_FLAGS.map(f=>`
+  <tr>
+    <td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--dk-grey);">${f.id}</td>
+    <td><span class="urg-badge urg-${f.urgency==='IMMEDIATE'?'imm':'prm'}">${f.urgency}</span></td>
+    <td style="font-weight:600;">${f.label}</td>
+    <td style="color:var(--text-sub);">${f.rationale}</td>
+    <td style="font-size:12px;color:var(--mid-grey);">${TRIGGER_LABELS[f.id]||'—'}</td>
+  </tr>`).join('');
+</script>
+</body>
+</html>
