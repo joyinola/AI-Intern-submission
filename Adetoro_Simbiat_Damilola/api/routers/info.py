@@ -1,9 +1,4 @@
-"""
-Check Me — Info Router
-========================
-GET /model-info       — Model metadata, performance metrics, and feature importances.
-GET /clinical-flags   — All 8 safety flags with conditions, rationale, and urgency.
-"""
+
 
 from fastapi import APIRouter, Depends
 

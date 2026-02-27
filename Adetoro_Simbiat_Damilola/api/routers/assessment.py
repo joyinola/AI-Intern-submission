@@ -1,9 +1,3 @@
-"""
-Check Me — Assessment Router
-==============================
-POST /assess  — Full breast cancer risk assessment for a single patient.
-GET  /example — Pre-built example patients covering all three risk tiers.
-"""
 
 from fastapi import APIRouter, HTTPException, Depends
 
