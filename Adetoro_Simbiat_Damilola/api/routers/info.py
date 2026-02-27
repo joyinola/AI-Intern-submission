@@ -44,7 +44,7 @@ def model_info(model=Depends(get_model)):
             "BI-RADS 5th Edition",
             "WHO Breast Cancer 2023",
         ],
-        "feature_importance": metrics["feature_importance"],
+        "feature_importance": dict(metrics.get("feature_importance") or {k:v for k,v in metrics.get("top_features",[])}  ),
     }
 
 

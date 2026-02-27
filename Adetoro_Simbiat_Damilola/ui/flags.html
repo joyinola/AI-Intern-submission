@@ -13,6 +13,7 @@
 .urg-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:900; letter-spacing:0.1em; text-transform:uppercase; }
 .urg-imm { background:var(--red-light); color:var(--red); }
 .urg-prm { background:#fef9ec; color:var(--yellow); }
+.escalation-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; }
 .summary-pill { display:inline-flex; align-items:center; gap:6px; background:white; border:1px solid var(--border); border-radius:8px; padding:12px 18px; font-size:13px; font-weight:600; color:var(--dk-grey); box-shadow:0 1px 5px rgba(0,0,0,0.05); }
 .pill-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 </style>
@@ -24,26 +25,26 @@
     <div class="topbar">
       <div class="topbar-title">Safety Flags</div>
       <div class="topbar-sep"></div>
-      <div class="topbar-sub">Clinical rule-based overrides</div>
+      <div class="topbar-sub">8 independent clinical rule-based overrides</div>
       <div class="topbar-right">
         <a href="assess.html" class="btn btn-primary">+ New Assessment</a>
       </div>
     </div>
     <div class="page">
 
-      <!-- Summary cards -->
+      <!-- Summary pills -->
       <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;" class="fi">
         <div class="summary-pill">
           <div class="pill-dot" style="background:var(--red);"></div>
-          3 IMMEDIATE flags — force URGENT tier
+          3 IMMEDIATE flags — force RED band
         </div>
         <div class="summary-pill">
           <div class="pill-dot" style="background:var(--yellow);"></div>
-          5 PROMPT flags — escalate to HIGH or above
+          5 PROMPT flags — escalate to YELLOW or above
         </div>
         <div class="summary-pill">
           <div class="pill-dot" style="background:var(--dk-grey);"></div>
-          Always evaluated regardless of ML score
+          Always evaluated independently of GB model score
         </div>
       </div>
 
@@ -51,12 +52,14 @@
       <div class="card fi fi-1" style="margin-bottom:24px;">
         <div class="card-head"><span class="card-head-title">How Safety Flags Work</span></div>
         <div class="card-body">
-          <p style="font-size:14px;line-height:1.7;color:var(--dk-grey);max-width:720px;">
-            Safety flags are evaluated <strong>before</strong> the machine learning model. They are hard-coded clinical rules grounded in published oncology guidelines. When a flag is triggered, it is always surfaced to the clinician — regardless of the ML probability score.
+          <p style="font-size:14px;line-height:1.75;color:var(--dk-grey);max-width:720px;">
+            Safety flags are evaluated <strong>independently</strong> of the Gradient Boosting model. They are hard-coded clinical rules grounded in published oncology guidelines. When a flag is triggered, it is always surfaced to the clinician — regardless of what the ML probability score says.
             <br><br>
-            <strong>IMMEDIATE flags</strong> (red) override the ML output and force the <strong>URGENT</strong> risk tier. These represent combinations of findings that require same-day clinical action.
+            <strong>IMMEDIATE flags</strong> <span style="background:var(--red-light);color:var(--red);padding:1px 7px;border-radius:4px;font-size:12px;font-weight:700;">→ RED</span> &nbsp;override the GB output and force the <strong>RED</strong> band. These represent combinations of findings requiring same-day clinical action.
             <br><br>
-            <strong>PROMPT flags</strong> (amber) escalate the risk tier to at least <strong>HIGH</strong>. If the ML model already scores HIGH or URGENT, the flag adds additional clinical context without changing the tier.
+            <strong>PROMPT flags</strong> <span style="background:#fef9ec;color:var(--yellow);padding:1px 7px;border-radius:4px;font-size:12px;font-weight:700;">→ YELLOW</span> &nbsp;escalate the band to at least <strong>YELLOW</strong>. If the GB model already scores in the RED zone, the flag adds clinical context without downgrading the band.
+            <br><br>
+            Flags can only <em>escalate</em> — never downgrade. A LOW confidence GREEN can be forced to RED by a single IMMEDIATE flag.
           </p>
         </div>
       </div>
@@ -67,11 +70,12 @@
         <table class="flag-table" id="flags-table">
           <thead>
             <tr>
-              <th style="width:140px;">Flag ID</th>
+              <th style="width:130px;">Flag ID</th>
               <th style="width:100px;">Urgency</th>
+              <th style="width:90px;">Escalates To</th>
               <th>Condition</th>
               <th>Clinical Rationale</th>
-              <th style="width:120px;">Triggered When</th>
+              <th style="width:140px;">Triggered When</th>
             </tr>
           </thead>
           <tbody id="flags-tbody"></tbody>
@@ -79,7 +83,7 @@
       </div>
 
       <div style="margin-top:20px;" class="fi fi-4">
-        <div class="disclaimer"><strong>⚕ Clinical Basis.</strong> All flags cite peer-reviewed guidelines: ACS 2023 · NICE NG101 · BI-RADS 5th Edition. This tool is a research demonstration and must not be used as the sole basis for clinical decisions.</div>
+        <div class="disclaimer"><strong>This is not a diagnosis.</strong> Check Me is a self-screening support tool. These rules are based on published clinical guidelines, but this tool cannot replace professional medical advice. If you have concerns, please see a doctor.</div>
       </div>
     </div>
   </div>
@@ -92,21 +96,30 @@ const TRIGGER_LABELS = {
   brca_palpable:  'BRCA = Yes AND Palpable lump = Yes',
   skin_nipple:    'Skin changes = Yes AND Nipple discharge = Yes',
   skin_change:    'Skin changes = Yes',
-  brca_known:     'BRCA = Yes',
+  brca_known:     'BRCA mutation = Yes',
   fh_lump:        'Family history = Yes AND Palpable lump = Yes',
-  high_concavity: 'Concavity worst > 0.70',
-  large_area:     'Area worst > 2,000 µm²',
-  age_brca:       'Age > 30 AND BRCA = Yes',
+  high_concavity: 'worst_concavity > 0.70',
+  large_area:     'worst_area > 2,000 µm²',
+  age_brca:       'Age > 30 AND BRCA mutation = Yes',
 };
 
-document.getElementById('flags-tbody').innerHTML = CLINICAL_FLAGS.map(f=>`
+const ESCALATION = {
+  IMMEDIATE: { label: '🔴 RED',    style: 'background:var(--red-light);color:var(--red);' },
+  PROMPT:    { label: '🟡 YELLOW', style: 'background:#fef9ec;color:var(--yellow);'       },
+};
+
+document.getElementById('flags-tbody').innerHTML = CLINICAL_FLAGS.map(f => {
+  const esc = ESCALATION[f.urgency] || ESCALATION.PROMPT;
+  return `
   <tr>
     <td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--dk-grey);">${f.id}</td>
-    <td><span class="urg-badge urg-${f.urgency==='IMMEDIATE'?'imm':'prm'}">${f.urgency}</span></td>
+    <td><span class="urg-badge urg-${f.urgency === 'IMMEDIATE' ? 'imm' : 'prm'}">${f.urgency}</span></td>
+    <td><span class="escalation-tag" style="${esc.style}">${esc.label}</span></td>
     <td style="font-weight:600;">${f.label}</td>
     <td style="color:var(--text-sub);">${f.rationale}</td>
-    <td style="font-size:12px;color:var(--mid-grey);">${TRIGGER_LABELS[f.id]||'—'}</td>
-  </tr>`).join('');
+    <td style="font-size:12px;color:var(--mid-grey);">${TRIGGER_LABELS[f.id] || '—'}</td>
+  </tr>`;
+}).join('');
 </script>
 </body>
 </html>

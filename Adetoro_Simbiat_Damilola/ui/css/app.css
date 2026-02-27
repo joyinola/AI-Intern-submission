@@ -83,14 +83,21 @@ html, body { height:100%; background:var(--bg); font-family:var(--font-body); co
 .cat-row.clickable { cursor:pointer; }
 .cat-row.clickable:hover { box-shadow:0 4px 16px rgba(0,0,0,0.09); }
 .cat-badge { width:66px; min-height:66px; display:flex; align-items:center; justify-content:center; font-family:var(--font-head); font-size:26px; font-weight:900; color:white; flex-shrink:0; }
-.badge-R { background:var(--green); }
+/* ── Risk band badges (GREEN / YELLOW / RED) ── */
+.badge-G { background:var(--green); }
+.badge-Y { background:var(--yellow); }
+.badge-R { background:var(--red); }
+.badge-F { background:var(--dk-grey); font-size:18px; }
+/* legacy aliases */
 .badge-E { background:var(--yellow); }
 .badge-H { background:var(--red); }
-.badge-U { background:var(--purple); }
-.badge-F { background:var(--dk-grey); font-size:18px; }
+.badge-U { background:var(--red); }
 .cat-info { flex:1; padding:12px 16px; }
 .cat-title { font-size:16px; font-weight:700; }
-.c-R { color:var(--green); } .c-E { color:var(--yellow); } .c-H { color:var(--red); } .c-U { color:var(--purple); }
+/* Band text colors */
+.c-G { color:var(--green); } .c-Y { color:var(--yellow); } .c-R { color:var(--red); }
+/* legacy aliases */
+.c-E { color:var(--yellow); } .c-H { color:var(--red); } .c-U { color:var(--red); }
 .cat-sub { font-size:11px; color:var(--mid-grey); letter-spacing:0.1em; text-transform:uppercase; margin-top:2px; }
 .cat-expand { display:none; padding:12px 16px; border-top:1px solid var(--lt-grey); font-size:13px; color:var(--dk-grey); line-height:1.5; }
 .cat-expand.open { display:block; }

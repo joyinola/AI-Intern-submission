@@ -2,25 +2,27 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# curl is needed for the Docker health check
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source
 COPY model/ ./model/
 COPY api/   ./api/
 
-# Create artefacts directory
+# ── Pre-trained artefacts bundled into the image ──────────────────────────────
+# pipeline.pkl and metrics.json were trained locally via:
+#   python train_and_export.py
+# Docker copies them in — zero training at build or runtime.
+# Container is ready in < 10 seconds every time.
+#
+# To retrain: run train_and_export.py locally, then: docker compose up --build
 RUN mkdir -p /model/artefacts
+COPY model/artefacts/ /model/artefacts/
 
-# Expose API port
 EXPOSE 8000
 
-# entrypoint.sh trains the model then starts uvicorn
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

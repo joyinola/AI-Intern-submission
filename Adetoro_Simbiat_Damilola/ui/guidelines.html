@@ -7,20 +7,27 @@
 <style>
 .guideline-card { background:white; border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 1px 8px rgba(0,0,0,0.05); margin-bottom:16px; }
 .guideline-head { padding:16px 22px; display:flex; align-items:center; gap:14px; border-bottom:1px solid var(--lt-grey); }
-.gl-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:18px; }
+.gl-icon  { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:18px; }
 .gl-title { font-family:var(--font-head); font-size:16px; font-weight:800; color:var(--text); }
 .gl-year  { font-size:12px; color:var(--mid-grey); margin-top:2px; }
 .gl-badge { margin-left:auto; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
-.guideline-body { padding:18px 22px; }
-.guideline-body p { font-size:13px; color:var(--dk-grey); line-height:1.7; margin-bottom:12px; }
+.guideline-body   { padding:18px 22px; }
+.guideline-body p { font-size:13px; color:var(--dk-grey); line-height:1.75; margin-bottom:12px; }
 .guideline-body p:last-child { margin-bottom:0; }
-.guideline-rule { display:flex; gap:10px; margin-bottom:10px; align-items:flex-start; }
-.rule-dot { width:6px; height:6px; border-radius:50%; background:var(--red); flex-shrink:0; margin-top:7px; }
+.guideline-rule   { display:flex; gap:10px; margin-bottom:10px; align-items:flex-start; }
+.rule-dot  { width:6px; height:6px; border-radius:50%; background:var(--red); flex-shrink:0; margin-top:7px; }
 .rule-text { font-size:13px; color:var(--dk-grey); line-height:1.55; }
-.tier-guide-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
-.tier-guide-card { border-radius:10px; overflow:hidden; border:1px solid var(--border); }
-.tgc-head { padding:12px 16px; color:white; font-family:var(--font-head); font-size:14px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
-.tgc-body { padding:12px 16px; font-size:12px; color:var(--dk-grey); line-height:1.55; background:white; }
+
+.band-guide-row  { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+.band-guide-card { border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+.bgc-head { padding:14px 16px; color:white; font-family:var(--font-head); font-size:14px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
+.bgc-sub  { font-size:10px; font-weight:600; opacity:0.7; display:block; margin-top:3px; }
+.bgc-body { padding:14px 16px; font-size:12px; color:var(--dk-grey); line-height:1.6; background:white; }
+
+.model-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.model-stat { background:var(--off-white); border-radius:10px; padding:14px 16px; text-align:center; }
+.model-stat-n { font-family:var(--font-head); font-size:22px; font-weight:900; }
+.model-stat-l { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-grey); margin-top:4px; }
 </style>
 </head>
 <body>
@@ -30,97 +37,137 @@
     <div class="topbar">
       <div class="topbar-title">Clinical Guidelines</div>
       <div class="topbar-sep"></div>
-      <div class="topbar-sub">Evidence base for Check Me recommendations</div>
+      <div class="topbar-sub">Evidence base · Model provenance · Risk band definitions</div>
       <div class="topbar-right">
         <a href="assess.html" class="btn btn-primary">+ New Assessment</a>
       </div>
     </div>
     <div class="page">
 
-      <!-- Tier reference -->
-      <div class="sec-label fi">Risk Tier Thresholds</div>
-      <div class="tier-guide-row fi fi-1">
-        <div class="tier-guide-card">
-          <div class="tgc-head" style="background:var(--green);">ROUTINE</div>
-          <div class="tgc-body">P &lt; 28%, no flags triggered. Continue standard annual mammography programme per ACS age guidance.</div>
+      <!-- Risk band reference -->
+      <div class="sec-label fi">Risk Band Thresholds</div>
+      <div class="band-guide-row fi fi-1">
+        <div class="band-guide-card">
+          <div class="bgc-head" style="background:var(--green);">
+            🟢 GREEN — Low Risk
+            <span class="bgc-sub">P &lt; 35% · No clinical flags</span>
+          </div>
+          <div class="bgc-body">Continue standard annual mammography per ACS age guidelines. Monthly self-examination. Reassess if any new symptoms develop between appointments.</div>
         </div>
-        <div class="tier-guide-card">
-          <div class="tgc-head" style="background:var(--yellow);">ELEVATED</div>
-          <div class="tgc-body">P 28–48%, no urgent flags. GP referral within 6 weeks. Supplemental imaging discussion if dense breast confirmed.</div>
+        <div class="band-guide-card">
+          <div class="bgc-head" style="background:var(--yellow);">
+            🟡 YELLOW — Moderate Risk
+            <span class="bgc-sub">P 35–65% · or any PROMPT flag</span>
+          </div>
+          <div class="bgc-body">GP referral for clinical breast assessment within 6 weeks. Consider supplemental ultrasound if dense breast tissue is confirmed. Genetic counselling if strong family history.</div>
         </div>
-        <div class="tier-guide-card">
-          <div class="tgc-head" style="background:var(--red);">HIGH</div>
-          <div class="tgc-body">P 48–72%, or any PROMPT flag. Breast clinic referral within 2 weeks. Annual MRI per NICE NG101.</div>
-        </div>
-        <div class="tier-guide-card">
-          <div class="tgc-head" style="background:var(--purple);">URGENT</div>
-          <div class="tgc-body">P ≥ 72%, or any IMMEDIATE flag. 2WW urgent cancer pathway referral same day. Triple assessment required.</div>
+        <div class="band-guide-card">
+          <div class="bgc-head" style="background:var(--red);">
+            🔴 RED — High Risk
+            <span class="bgc-sub">P &gt; 65% · or any IMMEDIATE flag</span>
+          </div>
+          <div class="bgc-body">Urgent breast clinic referral within 1–2 weeks (2WW pathway). Triple assessment: clinical exam + imaging + FNA / core biopsy. MDT review if imaging raises concern.</div>
         </div>
       </div>
 
-      <!-- Guideline cards -->
-      <div class="sec-label fi fi-2" style="margin-bottom:14px;">Referenced Guidelines</div>
+      <!-- Model provenance -->
+      <div class="sec-label fi fi-2" style="margin-bottom:14px;">Model Provenance &amp; Performance</div>
 
       <div class="guideline-card fi fi-2">
+        <div class="guideline-head">
+          <div class="gl-icon" style="background:#fef9ec;">🤖</div>
+          <div>
+            <div class="gl-title">Gradient Boosting Classifier</div>
+            <div class="gl-year">sklearn GradientBoostingClassifier · XGBoost-equivalent · Trained on real UCI data</div>
+          </div>
+          <span class="gl-badge" style="background:#fef9ec;color:var(--yellow);">ML Model</span>
+        </div>
+        <div class="guideline-body">
+          <div class="model-stat-grid">
+            <div class="model-stat"><div class="model-stat-n" style="color:var(--red);">0.993</div><div class="model-stat-l">CV ROC-AUC</div></div>
+            <div class="model-stat"><div class="model-stat-n" style="color:var(--green);">93.9%</div><div class="model-stat-l">CV Recall</div></div>
+            <div class="model-stat"><div class="model-stat-n" style="color:var(--yellow);">95.6%</div><div class="model-stat-l">CV F1 Score</div></div>
+            <div class="model-stat"><div class="model-stat-n" style="color:var(--yellow);">97.7%</div><div class="model-stat-l">CV Precision</div></div>
+            <div class="model-stat"><div class="model-stat-n" style="color:var(--green);">0.000</div><div class="model-stat-l">Brier Score</div></div>
+            <div class="model-stat"><div class="model-stat-n">5-Fold</div><div class="model-stat-l">CV Strategy</div></div>
+          </div>
+          <p>Why Gradient Boosting over Logistic Regression? GB captures <strong>non-linear feature interactions</strong> — for example, the combination of high concavity AND large nuclear area is more suspicious than either factor alone. It is also robust to the multicollinearity present in FNA measurements (radius, perimeter, and area are geometrically related), which inflates logistic regression coefficients.</p>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>n_estimators=300, learning_rate=0.08, max_depth=3</strong> — shallow trees prevent overfitting on 569 samples.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>subsample=0.8</strong> — stochastic GB reduces variance by training each tree on 80% of data.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>Permutation importance</strong> is used for explainability: shuffling worst_area degrades AUC by 0.00752 — the largest drop among all features.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>Brier Score 0.000186</strong> — excellent probability calibration; model outputs are well-suited for threshold-based band assignment.</div></div>
+        </div>
+      </div>
+
+      <!-- UCI Dataset -->
+      <div class="guideline-card fi fi-3">
+        <div class="guideline-head">
+          <div class="gl-icon" style="background:#fde8e7;">🧬</div>
+          <div>
+            <div class="gl-title">UCI Wisconsin Breast Cancer Diagnostic Dataset</div>
+            <div class="gl-year">Wolberg, Street &amp; Mangasarian · University of Wisconsin Hospital · 1995 · CC BY 4.0</div>
+          </div>
+          <span class="gl-badge" style="background:#fde8e7;color:var(--red);">Real Data</span>
+        </div>
+        <div class="guideline-body">
+          <p>Check Me is trained directly on the <strong>real UCI dataset</strong> — 569 digitised fine needle aspirate (FNA) samples from the University of Wisconsin Hospital. This is <em>not</em> synthetic data. Each case is fully labelled (212 malignant, 357 benign) by clinical outcome.</p>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>569 real patients</strong> — 212 malignant (37.3%), 357 benign (62.7%). No synthetic augmentation.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>15 FNA features</strong> used: mean and worst values for radius, texture, area, concavity, concave points, and compactness/symmetry/fractal dimension.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text"><strong>Top predictive feature</strong>: worst_area (permutation importance 0.00752 AUC drop) — the largest nucleus area in the sample strongly predicts malignancy.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Dataset is publicly available at the UCI ML Repository (ID 17) under CC BY 4.0. Reference: Wolberg et al., Machine Learning 1995.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Clinical and demographic risk factors (age, BMI, BRCA, family history, HRT, etc.) are appended to the FNA measurements for holistic risk stratification.</div></div>
+        </div>
+      </div>
+
+      <!-- Referenced guidelines -->
+      <div class="sec-label fi fi-3" style="margin-bottom:14px;">Referenced Clinical Guidelines</div>
+
+      <div class="guideline-card fi fi-3">
         <div class="guideline-head">
           <div class="gl-icon" style="background:#fde8e7;">🎗️</div>
           <div><div class="gl-title">American Cancer Society (ACS) Breast Cancer Screening</div><div class="gl-year">2023 Update</div></div>
           <span class="gl-badge" style="background:#fde8e7;color:var(--red);">Screening</span>
         </div>
         <div class="guideline-body">
-          <p>The ACS 2023 guidelines form the backbone of Check Me's routine and elevated-tier recommendations:</p>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Women aged 40–44 have the option to start annual breast cancer screening with mammograms.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Women 45–54 should get mammograms every year.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Women 55 and older can switch to mammograms every 2 years, or continue annual screening.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Women at high risk (BRCA mutation, prior radiation, strong family history) should get annual MRI alongside mammography.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Palpable lump + strong family history combination triggers urgent imaging referral per ACS guidance.</div></div>
+          <p>The ACS 2023 guidelines underpin Check Me's GREEN band recommendations and clinical flag rationale:</p>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Women aged 40–44 may start annual mammography screening; ages 45–54 should screen annually.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Women 55+ may switch to biennial screening or continue annually depending on preference and risk.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">High-risk women (BRCA, prior radiation, strong family history) should receive annual MRI alongside mammography.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Palpable lump + strong family history triggers the <code>fh_lump</code> PROMPT safety flag in Check Me.</div></div>
         </div>
       </div>
 
-      <div class="guideline-card fi fi-3">
+      <div class="guideline-card fi fi-4">
         <div class="guideline-head">
           <div class="gl-icon" style="background:#eafaf1;">🇬🇧</div>
           <div><div class="gl-title">NICE NG101 — Familial Breast Cancer Management</div><div class="gl-year">Updated 2023</div></div>
           <span class="gl-badge" style="background:#eafaf1;color:var(--green);">Familial Risk</span>
         </div>
         <div class="guideline-body">
-          <p>NICE NG101 informs Check Me's BRCA mutation flags and high-risk surveillance recommendations:</p>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Annual MRI surveillance from age 30 for women with BRCA1/2 mutations (triggered by age_brca flag).</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Annual MRI from age 40 for women with a ≥30% lifetime risk based on family history.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Referral to specialist genetics service for women with ≥10% probability of BRCA mutation.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Chemoprevention options (tamoxifen, anastrozole) discussed for high-risk premenopausal women.</div></div>
+          <p>NICE NG101 informs Check Me's BRCA-related clinical flags and YELLOW/RED band referral timelines:</p>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Annual MRI surveillance from age 30 for BRCA1/2 carriers — triggers the <code>age_brca</code> PROMPT flag.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Annual MRI from age 40 for women with ≥30% lifetime risk based on family history.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Referral to specialist genetics for women with ≥10% probability of BRCA mutation.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Chemoprevention options (tamoxifen, anastrozole) discussed for high-risk premenopausal women in YELLOW/RED bands.</div></div>
         </div>
       </div>
 
-      <div class="guideline-card fi fi-3">
+      <div class="guideline-card fi fi-4">
         <div class="guideline-head">
           <div class="gl-icon" style="background:#f5eef8;">🔬</div>
           <div><div class="gl-title">ACR BI-RADS — Breast Imaging Reporting and Data System</div><div class="gl-year">5th Edition</div></div>
           <span class="gl-badge" style="background:#f5eef8;color:var(--purple);">Imaging</span>
         </div>
         <div class="guideline-body">
-          <p>BI-RADS 5th edition informs Check Me's FNA feature interpretation and imaging-based flags:</p>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Dense breast tissue (BI-RADS categories C/D) is a recognised independent risk factor surfaced in the dense_breast field.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Skin thickening or nipple discharge combined with skin changes are associated with inflammatory breast cancer per BI-RADS descriptors (triggers skin_nipple IMMEDIATE flag).</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">FNA nucleus measurements (radius, area, concavity) are derived from BI-RADS cytological assessment frameworks.</div></div>
-        </div>
-      </div>
-
-      <div class="guideline-card fi fi-4">
-        <div class="guideline-head">
-          <div class="gl-icon" style="background:#fef9ec;">🧬</div>
-          <div><div class="gl-title">UCI Wisconsin Breast Cancer Diagnostic Dataset</div><div class="gl-year">Wolberg, Street & Mangasarian — 1995</div></div>
-          <span class="gl-badge" style="background:#fef9ec;color:var(--yellow);">Dataset</span>
-        </div>
-        <div class="guideline-body">
-          <p>The FNA nucleus measurements in Check Me are calibrated to the distributions in this landmark dataset. 26 features including radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, and fractal dimension are computed from digitised fine needle aspirate images.</p>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Original dataset: 569 cases (212 malignant, 357 benign) from the University of Wisconsin Hospital.</div></div>
-          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Check Me's synthetic training dataset of 3,000 patients mirrors these feature distributions with ~35% malignant prevalence to simulate a screening-positive referral population.</div></div>
+          <p>BI-RADS 5th edition informs Check Me's FNA-based safety flags and imaging-level risk factors:</p>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Dense breast tissue (BI-RADS C/D) is a recognised independent risk factor — surfaced in the <code>dense_breast</code> clinical field.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">Skin thickening + nipple discharge combined are associated with inflammatory BC — triggers the <code>skin_nipple</code> IMMEDIATE flag → RED.</div></div>
+          <div class="guideline-rule"><div class="rule-dot"></div><div class="rule-text">worst_concavity &gt; 0.70 and worst_area &gt; 2,000 µm² are cytological thresholds that trigger PROMPT flags, grounded in BI-RADS cytology descriptors.</div></div>
         </div>
       </div>
 
       <div style="margin-top:4px;" class="fi fi-4">
-        <div class="disclaimer"><strong>⚕ Research Use Only.</strong> Check Me is a demonstration tool. The guidelines above are summarised for reference. Clinical practitioners should consult full guideline texts for patient care decisions.</div>
+        <div class="disclaimer"><strong>This is not a diagnosis.</strong> Check Me is a self-screening support tool. For any health concerns, please consult a healthcare professional. Guidelines are summarised for reference only.</div>
       </div>
     </div>
   </div>

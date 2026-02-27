@@ -1,12 +1,23 @@
-# Check Me — Breast Cancer Risk Stratification AI
-# Python 3.11+
+# Check Me — Python Dependencies
+# GradientBoosting model (XGBoost-equivalent, no install needed)
+# To use true XGBoost: pip install xgboost  (then update trainer.py)
+
+# Core ML
+scikit-learn>=1.3.0
+numpy>=1.24.0
+pandas>=2.0.0
 
 # API
 fastapi>=0.110.0
-uvicorn[standard]>=0.29.0
+uvicorn[standard]>=0.27.0
 pydantic>=2.0.0
 
-# ML & Data
-scikit-learn>=1.4.0
-numpy>=1.26.0
-pandas>=2.2.0
+# Model persistence
+joblib>=1.3.0
+
+# Visualisation (notebook only)
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+shap>=0.44.0
+xgboost>=2.0.0

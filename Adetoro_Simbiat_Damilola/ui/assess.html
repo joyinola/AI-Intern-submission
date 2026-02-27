@@ -74,15 +74,15 @@ const STEPS = [
 ];
 
 const FNA_FIELDS = [
-  { key:'radius_mean',          label:'Radius Mean',          unit:'',    min:4,   max:35,   s:0.5  },
-  { key:'texture_mean',         label:'Texture Mean',         unit:'',    min:5,   max:50,   s:0.5  },
-  { key:'area_mean',            label:'Area Mean',            unit:'µm²', min:100, max:2500, s:10   },
-  { key:'concavity_mean',       label:'Concavity Mean',       unit:'',    min:0,   max:0.45, s:0.01 },
-  { key:'concave_points_mean',  label:'Concave Pts Mean',     unit:'',    min:0,   max:0.20, s:0.005},
-  { key:'radius_worst',         label:'Radius Worst',         unit:'',    min:6,   max:36,   s:0.5  },
-  { key:'area_worst',           label:'Area Worst',           unit:'µm²', min:150, max:4000, s:10   },
-  { key:'concavity_worst',      label:'Concavity Worst',      unit:'',    min:0,   max:1,    s:0.01 },
-  { key:'concave_pts_worst',    label:'Concave Pts Worst',    unit:'',    min:0,   max:0.30, s:0.005},
+  { key:'mean_radius',          label:'Radius Mean',          unit:'',    min:4,   max:35,   s:0.5  },
+  { key:'mean_texture',         label:'Texture Mean',         unit:'',    min:5,   max:50,   s:0.5  },
+  { key:'mean_area',            label:'Area Mean',            unit:'µm²', min:100, max:2500, s:10   },
+  { key:'mean_concavity',       label:'Concavity Mean',       unit:'',    min:0,   max:0.45, s:0.01 },
+  { key:'mean_concave_points',  label:'Concave Pts Mean',     unit:'',    min:0,   max:0.20, s:0.005},
+  { key:'worst_radius',         label:'Radius Worst',         unit:'',    min:6,   max:36,   s:0.5  },
+  { key:'worst_area',           label:'Area Worst',           unit:'µm²', min:150, max:4000, s:10   },
+  { key:'worst_concavity',      label:'Concavity Worst',      unit:'',    min:0,   max:1,    s:0.01 },
+  { key:'worst_concave_points',    label:'Concave Pts Worst',    unit:'',    min:0,   max:0.30, s:0.005},
 ];
 
 function render() {

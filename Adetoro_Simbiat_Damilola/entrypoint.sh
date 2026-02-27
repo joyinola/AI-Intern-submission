@@ -5,13 +5,12 @@ echo "============================================"
 echo "  Check Me — Starting up"
 echo "============================================"
 
-# Train the model if artefacts don't already exist
-# (allows re-use of a mounted volume with pre-trained weights)
 if [ ! -f /model/artefacts/pipeline.pkl ]; then
-  echo "[1/2] Training model..."
-  python model/train.py --out /model/artefacts
+  echo "[1/2] WARNING: No artefacts found — training fallback..."
+  echo "      Run train_and_export.py locally to avoid this."
+  python -m model.train --out /model/artefacts
 else
-  echo "[1/2] Model artefacts already exist — skipping training."
+  echo "[1/2] Pre-trained model loaded. ✓  (trained locally, bundled in image)"
 fi
 
 echo "[2/2] Starting FastAPI server..."

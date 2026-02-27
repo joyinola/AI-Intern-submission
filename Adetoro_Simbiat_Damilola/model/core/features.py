@@ -1,29 +1,35 @@
 """
 Check Me — Feature Definitions
 ================================
-Canonical ordered list of model input features and their human-readable
-descriptions. Used by both the trainer and the inference/decision layer.
+Uses the real UCI Wisconsin Breast Cancer Diagnostic dataset column names,
+augmented with clinical/demographic risk factors.
+
+UCI dataset reference:
+  Wolberg, W.H., Street, W.N., & Mangasarian, O.L. (1995).
+  UCI Machine Learning Repository.
+  https://archive.ics.uci.edu/ml/datasets/breast+cancer+wisconsin+(diagnostic)
 """
 
 FEATURE_COLS: list[str] = [
-    # FNA nucleus measurements — mean values
-    "radius_mean",
-    "texture_mean",
-    "perimeter_mean",
-    "area_mean",
-    "smoothness_mean",
-    "compactness_mean",
-    "concavity_mean",
-    "concave_points_mean",
-    "symmetry_mean",
-    "fractal_dim_mean",
+    # FNA nucleus measurements — mean values (UCI real columns)
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
     # FNA nucleus measurements — worst (largest) values
-    "radius_worst",
-    "texture_worst",
-    "area_worst",
-    "concavity_worst",
-    "concave_pts_worst",
-    # Clinical & demographic risk factors
+    "worst_radius",
+    "worst_texture",
+    "worst_area",
+    "worst_concavity",
+    "worst_concave_points",
+    # Clinical & demographic risk factors (not in original UCI — appended synthetically
+    # based on published literature distributions)
     "age",
     "bmi",
     "alcohol_drinks_week",
@@ -38,30 +44,30 @@ FEATURE_COLS: list[str] = [
 ]
 
 FEATURE_DESCRIPTIONS: dict[str, str] = {
-    "radius_mean":          "Mean cell nucleus radius (FNA)",
-    "texture_mean":         "Mean nucleus texture (grey-scale SD)",
-    "perimeter_mean":       "Mean nucleus perimeter",
-    "area_mean":            "Mean nucleus area (µm²)",
-    "smoothness_mean":      "Nucleus contour smoothness",
-    "compactness_mean":     "Nucleus compactness (perimeter²/area)",
-    "concavity_mean":       "Severity of concave nucleus portions",
-    "concave_points_mean":  "Number of concave nucleus points",
-    "symmetry_mean":        "Nucleus symmetry",
-    "fractal_dim_mean":     "Fractal dimension (coastline approx.)",
-    "radius_worst":         "Largest nucleus radius (worst case)",
-    "texture_worst":        "Worst-case nucleus texture",
-    "area_worst":           "Largest nucleus area (worst case, µm²)",
-    "concavity_worst":      "Worst-case nucleus concavity",
-    "concave_pts_worst":    "Worst-case concave nucleus points",
-    "age":                  "Patient age (years)",
-    "bmi":                  "Body mass index (kg/m²)",
-    "alcohol_drinks_week":  "Alcohol units per week",
-    "family_history_bc":    "First-degree relative with breast cancer",
-    "prior_biopsy":         "Previous breast biopsy",
-    "hrt_use":              "Current hormone replacement therapy",
-    "brca_mutation":        "Known BRCA1/2 pathogenic mutation",
-    "dense_breast":         "Dense breast tissue (BI-RADS C/D)",
-    "palpable_lump":        "Palpable breast lump on exam",
-    "nipple_discharge":     "Spontaneous nipple discharge",
-    "skin_changes":         "Skin dimpling / peau d'orange",
+    "mean_radius":           "Mean cell nucleus radius (FNA)",
+    "mean_texture":          "Mean nucleus texture (grey-scale SD)",
+    "mean_perimeter":        "Mean nucleus perimeter",
+    "mean_area":             "Mean nucleus area (µm²)",
+    "mean_smoothness":       "Nucleus contour smoothness",
+    "mean_compactness":      "Nucleus compactness (perimeter²/area)",
+    "mean_concavity":        "Severity of concave nucleus portions",
+    "mean_concave_points":   "Number of concave nucleus points",
+    "mean_symmetry":         "Nucleus symmetry",
+    "mean_fractal_dimension":"Fractal dimension (coastline approx.)",
+    "worst_radius":          "Largest nucleus radius (worst case)",
+    "worst_texture":         "Worst-case nucleus texture",
+    "worst_area":            "Largest nucleus area (worst case, µm²)",
+    "worst_concavity":       "Worst-case nucleus concavity",
+    "worst_concave_points":  "Worst-case concave nucleus points",
+    "age":                   "Patient age (years)",
+    "bmi":                   "Body mass index (kg/m²)",
+    "alcohol_drinks_week":   "Alcohol units per week",
+    "family_history_bc":     "First-degree relative with breast cancer",
+    "prior_biopsy":          "Previous breast biopsy",
+    "hrt_use":               "Current hormone replacement therapy",
+    "brca_mutation":         "Known BRCA1/2 pathogenic mutation",
+    "dense_breast":          "Dense breast tissue (BI-RADS C/D)",
+    "palpable_lump":         "Palpable breast lump on exam",
+    "nipple_discharge":      "Spontaneous nipple discharge",
+    "skin_changes":          "Skin dimpling / peau d'orange",
 }

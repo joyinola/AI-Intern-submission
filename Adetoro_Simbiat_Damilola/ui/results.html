@@ -6,13 +6,14 @@
 <link rel="stylesheet" href="css/app.css"/>
 <style>
 .results-grid { display:grid; grid-template-columns:1fr 340px; gap:20px; }
-.driver-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.driver-lbl { font-size:11px; font-weight:700; color:var(--dk-grey); width:150px; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:0; }
+.driver-row   { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.driver-lbl   { font-size:11px; font-weight:700; color:var(--dk-grey); width:160px; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:0; }
 .driver-track { flex:1; height:6px; background:var(--lt-grey); border-radius:99px; overflow:hidden; }
 .driver-fill  { height:100%; border-radius:99px; transition:width 0.6s ease; }
-.driver-val   { font-size:11px; font-weight:700; color:var(--mid-grey); width:30px; text-align:right; }
-.no-result { text-align:center; padding:80px 20px; color:var(--mid-grey); }
+.driver-val   { font-size:11px; font-weight:700; color:var(--mid-grey); width:44px; text-align:right; }
+.no-result    { text-align:center; padding:80px 20px; color:var(--mid-grey); }
 .no-result h2 { font-family:var(--font-head); font-size:22px; font-weight:800; color:var(--dk-grey); margin-bottom:10px; }
+.band-chip    { display:inline-block; padding:3px 10px; border-radius:4px; font-weight:800; font-size:12px; letter-spacing:0.06em; text-transform:uppercase; }
 </style>
 </head>
 <body>
@@ -22,7 +23,7 @@
     <div class="topbar">
       <div class="topbar-title">Results</div>
       <div class="topbar-sep"></div>
-      <div class="topbar-sub" id="result-tier-badge">—</div>
+      <div class="topbar-sub" id="result-band-badge">—</div>
       <div class="topbar-right">
         <a href="assess.html" class="btn btn-primary">+ New Assessment</a>
         <button class="btn btn-ghost" onclick="window.print()">Export</button>
@@ -44,18 +45,13 @@ const res = loadResult();
 if (res) renderResult(res);
 
 function renderResult(res) {
-  // ── Normalise field names ──────────────────────────────────────────────────
-  // The API returns: risk_tier, risk_score, clinical_flags, recommendations, next_steps, top_features
-  // The local fallback returns: tier, prob, flags (array with .label), recommendations, next_steps
-  // We normalise everything here so the rendering code only uses one set of names.
-
-  const tier       = res.tier       || res.risk_tier;
-  const prob       = (res.prob      != null) ? res.prob : res.risk_score;
+  // Normalise field names — API returns risk_tier/risk_score, local fallback returns tier/prob
+  const tier       = res.tier       || res.risk_tier || 'GREEN';
+  const prob       = (res.prob      != null) ? res.prob : (res.risk_score ?? 0);
   const confidence = res.confidence || 'N/A';
   const source     = res.source     || 'api';
 
-  // Flags: API returns {id, condition, rationale, urgency}
-  //        Local fallback returns {id, label, rationale, urgency}
+  // Flags: API → {id, condition, rationale, urgency}  |  local → {id, label, rationale, urgency}
   const rawFlags = res.clinical_flags || res.flags || [];
   const flags = rawFlags.map(f => ({
     urgency:   f.urgency,
@@ -63,39 +59,36 @@ function renderResult(res) {
     rationale: f.rationale || '',
   }));
 
-  // Recommendations & next steps: API returns arrays directly on the result object
-  const cfg  = TIER_CFG[tier] || TIER_CFG['ROUTINE'];
-  const recs  = (res.recommendations && res.recommendations.length)
-                ? res.recommendations
-                : (TIER_RECS[tier] ? TIER_RECS[tier].recs : []);
-  const steps = (res.next_steps && res.next_steps.length)
-                ? res.next_steps
-                : (TIER_RECS[tier] ? TIER_RECS[tier].steps : []);
+  const cfg   = TIER_CFG[tier] || TIER_CFG['GREEN'];
+  const recs  = (res.recommendations && res.recommendations.length) ? res.recommendations : (TIER_RECS[tier]?.recs  || []);
+  const steps = (res.next_steps      && res.next_steps.length)      ? res.next_steps      : (TIER_RECS[tier]?.steps || []);
 
-  // Feature importance: API returns [{feature, description, value, importance}, ...]
-  // Local fallback: we use GLOBAL_IMP
+  // Feature importance bars
   let driversHTML = '';
   if (res.top_features && res.top_features.length) {
-    const maxImp = Math.max(...res.top_features.map(f => Math.abs(f.importance)), 0.001);
+    const maxImp = Math.max(...res.top_features.map(f => Math.abs(f.importance)), 0.0001);
     driversHTML = res.top_features.map(f => `
       <div class="driver-row">
-        <div class="driver-lbl">${(f.description || f.feature).replace(/_/g,' ')}</div>
+        <div class="driver-lbl">${(f.description || f.feature || '').replace(/_/g,' ')}</div>
         <div class="driver-track"><div class="driver-fill" style="width:${(Math.abs(f.importance)/maxImp*100).toFixed(1)}%;background:${cfg.color};"></div></div>
-        <div class="driver-val">${(f.importance*100).toFixed(1)}</div>
+        <div class="driver-val">${(f.importance * 100).toFixed(3)}</div>
       </div>`).join('');
   } else {
-    const maxImp = Math.max(...Object.values(GLOBAL_IMP));
-    driversHTML = Object.entries(GLOBAL_IMP).map(([f,imp]) => `
+    const maxImp = Math.max(...Object.values(GLOBAL_IMP), 0.0001);
+    driversHTML = Object.entries(GLOBAL_IMP).slice(0, 8).map(([f, imp]) => `
       <div class="driver-row">
         <div class="driver-lbl">${f.replace(/_/g,' ')}</div>
         <div class="driver-track"><div class="driver-fill" style="width:${(imp/maxImp*100).toFixed(1)}%;background:${cfg.color};"></div></div>
-        <div class="driver-val">${(imp*100).toFixed(1)}</div>
+        <div class="driver-val">${(imp * 100).toFixed(3)}</div>
       </div>`).join('');
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-  document.getElementById('result-tier-badge').textContent = tier + ' — ' + cfg.sub;
+  // Update topbar badge
+  document.getElementById('result-band-badge').innerHTML =
+    `<span class="band-chip" style="background:${cfg.color};color:white;">${cfg.label}</span>
+     <span style="margin-left:8px;color:var(--mid-grey);font-size:12px;">${cfg.sub}</span>`;
 
+  // Flags
   const flagsHTML = flags.length
     ? flags.map(f => `
         <div class="flag-card ${f.urgency.toLowerCase()}">
@@ -105,17 +98,19 @@ function renderResult(res) {
         </div>`).join('')
     : '<p style="font-size:13px;color:var(--mid-grey);padding:8px 0;">No clinical safety flags triggered for this patient.</p>';
 
+  // Recommendations
   const recsHTML = recs.map((r, i) => `
     <div class="cat-row clickable" onclick="this.querySelector('.cat-expand').classList.toggle('open')">
       <div class="cat-badge badge-${cfg.badge}">${i+1}</div>
       <div class="cat-info">
-        <div class="cat-title c-${cfg.badge}">${r.replace('⚠️ ','').replace('⚠ ','').substring(0,60)}${r.length>60?'…':''}</div>
-        <div class="cat-sub">Click to expand</div>
+        <div class="cat-title c-${cfg.badge}">${r.replace('⚠️ ','').replace('⚠ ','').substring(0,65)}${r.length>65?'…':''}</div>
+        <div class="cat-sub">Click to expand full guidance</div>
       </div>
       <div style="padding:0 14px;font-size:20px;color:var(--lt-grey);display:flex;align-items:center;">›</div>
       <div class="cat-expand">${r}</div>
     </div>`).join('');
 
+  // Next steps
   const stepsHTML = steps.map((s, i) => `
     <div class="cat-row">
       <div class="cat-badge badge-F">${i+1}</div>
@@ -127,37 +122,46 @@ function renderResult(res) {
 
   // Patient summary
   const st = res.state || {};
-  const summaryHTML = [
-    ['Age',            (st.age||'—') + ' years'],
-    ['BMI',            (st.bmi||'—') + ' kg/m²'],
-    ['Alcohol',        (st.alcohol_drinks_week||0) + ' drinks/wk'],
-    ['Family history', st.family_history_bc ? 'Yes' : 'No'],
-    ['BRCA mutation',  st.brca_mutation ? 'Yes' : 'No'],
-    ['Prior biopsy',   st.prior_biopsy ? 'Yes' : 'No'],
-    ['HRT use',        st.hrt_use ? 'Yes' : 'No'],
-    ['Dense breast',   st.dense_breast ? 'Yes' : 'No'],
-    ['Palpable lump',  st.palpable_lump ? 'Yes' : 'No'],
-    ['Nipple discharge', st.nipple_discharge ? 'Yes' : 'No'],
-    ['Skin changes',   st.skin_changes ? 'Yes' : 'No'],
-  ].map(([k,v]) => `
+  const fnaRows = [
+    ['Worst Area (µm²)',       (st.worst_area             ?? '—')],
+    ['Worst Concave Pts',      (st.worst_concave_points   ?? '—')],
+    ['Mean Concave Pts',       (st.mean_concave_points    ?? '—')],
+    ['Worst Concavity',        (st.worst_concavity        ?? '—')],
+    ['Mean Radius',            (st.mean_radius            ?? '—')],
+  ];
+  const clinRows = [
+    ['Age',             (st.age ?? '—') + ' yrs'],
+    ['BMI',             (st.bmi ?? '—') + ' kg/m²'],
+    ['Alcohol',         (st.alcohol_drinks_week ?? 0) + ' drinks/wk'],
+    ['Family history',  st.family_history_bc ? 'Yes' : 'No'],
+    ['BRCA mutation',   st.brca_mutation     ? 'Yes' : 'No'],
+    ['Prior biopsy',    st.prior_biopsy      ? 'Yes' : 'No'],
+    ['HRT use',         st.hrt_use           ? 'Yes' : 'No'],
+    ['Dense breast',    st.dense_breast      ? 'Yes' : 'No'],
+    ['Palpable lump',   st.palpable_lump     ? 'Yes' : 'No'],
+    ['Nipple discharge',st.nipple_discharge  ? 'Yes' : 'No'],
+    ['Skin changes',    st.skin_changes      ? 'Yes' : 'No'],
+  ];
+  const mkRow = ([k,v]) => `
     <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--lt-grey);">
       <span style="font-size:13px;color:var(--dk-grey);">${k}</span>
       <span style="font-size:13px;font-weight:700;color:var(--text);">${v}</span>
-    </div>`).join('');
+    </div>`;
 
   const sourceBadge = source === 'local_fallback'
-    ? '<span style="font-size:11px;background:#f39c12;color:white;padding:2px 8px;border-radius:4px;margin-left:8px;">LOCAL MODEL</span>'
-    : '<span style="font-size:11px;background:#27ae60;color:white;padding:2px 8px;border-radius:4px;margin-left:8px;">LIVE API</span>';
+    ? ''
+    : '';
 
   document.getElementById('page-content').innerHTML = `
     <div class="result-hero fi" style="background:linear-gradient(135deg,${cfg.color}cc,${cfg.color});">
       <div class="rh-label">OVERALL RISK RESULT ${sourceBadge}</div>
-      <div class="rh-tier">${tier}</div>
+      <div class="rh-tier">${cfg.label}</div>
       <div class="rh-sub">${cfg.sub}</div>
+      ${tier === 'RED' ? '<div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;margin-top:10px;font-size:13px;line-height:1.55;max-width:500px;">Remember: this is <strong>not a diagnosis</strong>. Getting checked early is the right move — most breast changes turn out to be benign.</div>' : ''}
       <div class="rh-pills">
-        <span class="rh-pill">SCORE ${(prob*100).toFixed(1)}%</span>
-        <span class="rh-pill">CONFIDENCE ${confidence}</span>
-        <span class="rh-pill">${flags.length} FLAG${flags.length!==1?'S':''} TRIGGERED</span>
+        <span class="rh-pill">${flags.length > 0 ? flags.length + ' clinical flag' + (flags.length !== 1 ? 's' : '') + ' noted' : 'No clinical flags'}</span>
+        <span class="rh-pill">${confidence === 'HIGH' ? 'Strong signal' : confidence === 'MODERATE' ? 'Moderate signal' : 'Mild signal'}</span>
+        <span class="rh-pill">Not a diagnosis</span>
       </div>
     </div>
 
@@ -177,25 +181,30 @@ function renderResult(res) {
         ${stepsHTML}
         <div style="margin-top:20px;"></div>
 
-        <div class="sec-label">Key Risk Drivers</div>
+        <div class="sec-label">Key Risk Drivers <span style="font-size:10px;font-weight:400;color:var(--mid-grey);text-transform:none;letter-spacing:0;">Permutation importance · AUC drop</span></div>
         <div class="card">
           <div class="card-body">
             ${driversHTML}
-            <p style="font-size:11px;color:var(--mid-grey);margin-top:8px;">* Permutation importance (AUC degradation) — higher = more influential feature</p>
+            <p style="font-size:11px;color:var(--mid-grey);margin-top:10px;">These measurements from the assessment are the strongest signals in your result. They are based on real clinical data, not a diagnosis.</p>
           </div>
         </div>
 
         <div style="margin-top:16px;">
-          <div class="disclaimer"><strong>⚕ Clinical Decision Support Only.</strong> Check Me does not diagnose breast cancer. All outputs must be validated by a qualified clinician. Based on: ACS 2023 · NICE NG101 · BI-RADS 5th Edition.</div>
+          <div class="disclaimer"><strong>This is not a diagnosis.</strong> Check Me is a self-screening support tool only. It cannot tell you whether you have or don't have cancer. For any concerns, please consult a healthcare professional. Based on: ACS 2023 · NICE NG101 · BI-RADS 5th Edition.</div>
         </div>
       </div>
 
-      <!-- Right column: summary -->
+      <!-- Right column -->
       <div>
-        <div class="sec-label">Patient Summary</div>
+        <div class="sec-label">Clinical Factors</div>
         <div class="card">
-          <div class="card-body" style="padding:0 20px;">
-            ${summaryHTML}
+          <div class="card-body" style="padding:0 20px;">${clinRows.map(mkRow).join('')}</div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div class="sec-label">Key FNA Values</div>
+          <div class="card">
+            <div class="card-body" style="padding:0 20px;">${fnaRows.map(mkRow).join('')}</div>
           </div>
         </div>
 
@@ -204,7 +213,7 @@ function renderResult(res) {
             <div class="card-head"><span class="card-head-title">Actions</span></div>
             <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
               <a href="assess.html" class="btn btn-primary" style="justify-content:center;">+ New Assessment</a>
-              <a href="index.html" class="btn btn-ghost" style="justify-content:center;">← Dashboard</a>
+              <a href="index.html"  class="btn btn-ghost"   style="justify-content:center;">← Dashboard</a>
             </div>
           </div>
         </div>

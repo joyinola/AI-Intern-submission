@@ -2,9 +2,9 @@
 Check Me — Clinical Safety Flags
 ==================================
 Hard clinical rules grounded in published oncology guidelines.
-These are always evaluated independently of the ML model and always
-surfaced to the clinician. IMMEDIATE flags escalate to URGENT tier;
-PROMPT flags escalate to HIGH tier or above.
+These are ALWAYS evaluated independently of the ML model and surface
+to the clinician regardless of model score. IMMEDIATE flags escalate
+to RED tier; PROMPT flags escalate to YELLOW tier or above.
 
 Clinical references:
   - ACS Breast Cancer Screening Guidelines (2023)
@@ -56,13 +56,13 @@ CLINICAL_FLAGS: list[ClinicalFlag] = [
     ),
     ClinicalFlag(
         "high_concavity",
-        "Concavity worst > 0.7 (FNA)",
+        "Worst concavity > 0.7 (FNA)",
         "High nuclear concavity — cytological malignancy marker",
         "PROMPT",
     ),
     ClinicalFlag(
         "large_area",
-        "Nuclear area worst > 2000 µm²",
+        "Worst nuclear area > 2000 µm²",
         "Markedly enlarged nuclei — strong malignancy predictor",
         "PROMPT",
     ),
@@ -74,7 +74,6 @@ CLINICAL_FLAGS: list[ClinicalFlag] = [
     ),
 ]
 
-# Build a lookup dict for fast access by id
 _FLAG_BY_ID: dict[str, ClinicalFlag] = {f.id: f for f in CLINICAL_FLAGS}
 
 
@@ -95,14 +94,13 @@ def evaluate_clinical_flags(row: dict) -> list[ClinicalFlag]:
         triggered_ids.append("brca_known")
     if row.get("family_history_bc") and row.get("palpable_lump"):
         triggered_ids.append("fh_lump")
-    if row.get("concavity_worst", 0) > 0.70:
+    if row.get("worst_concavity", 0) > 0.70:
         triggered_ids.append("high_concavity")
-    if row.get("area_worst", 0) > 2000:
+    if row.get("worst_area", 0) > 2000:
         triggered_ids.append("large_area")
     if row.get("brca_mutation") and row.get("age", 0) > 30:
         triggered_ids.append("age_brca")
 
-    # Deduplicate while preserving order
     seen: set[str] = set()
     result: list[ClinicalFlag] = []
     for fid in triggered_ids:

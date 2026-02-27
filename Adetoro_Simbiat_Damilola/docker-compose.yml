@@ -2,25 +2,21 @@ version: "3.9"
 
 services:
 
-  # ── FastAPI ML backend ──────────────────────────────────
   api:
     build:
       context: .
       dockerfile: Dockerfile.api
     container_name: checkme-api
     restart: unless-stopped
-    # The API is NOT exposed directly to the host.
-    # All traffic goes through the Nginx proxy on port 8080.
     expose:
       - "8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s        # check every 10 seconds
-      timeout: 5s          # fail if no response in 5 seconds
-      retries: 10          # allow up to 10 failures (covers ~100s of training time)
-      start_period: 60s    # don't count failures in the first 60s (training window)
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
 
-  # ── Nginx: serves the UI and proxies /api → FastAPI ────
   ui:
     build:
       context: .
@@ -28,7 +24,7 @@ services:
     container_name: checkme-ui
     restart: unless-stopped
     ports:
-      - "8080:80"      # Access the app at http://localhost:8080
+      - "8080:80"
     depends_on:
       api:
         condition: service_healthy
