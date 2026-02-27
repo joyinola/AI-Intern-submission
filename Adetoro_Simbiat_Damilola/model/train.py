@@ -59,7 +59,7 @@ def main(out_dir: str = "/model/artefacts") -> None:
     with open(metrics_path, "w") as f:
         json.dump(json_metrics, f, indent=2)
 
-    print(f"      pipeline.pkl saved")
+    print(f"      pipeline.joblib saved")
     print(f"      metrics.json saved")
     print("\n✓ Training complete.")
     print("=" * 60)

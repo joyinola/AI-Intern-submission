@@ -5,7 +5,7 @@ set -e
 echo "  Check Me — Starting up"
 
 
-if [ ! -f /model/artefacts/pipeline.pkl ]; then
+if [ ! -f /model/artefacts/pipeline.joblib ]; then
   echo "[1/2] WARNING: No artefacts found — training fallback..."
   echo "      Run train_and_export.py locally to avoid this."
   python -m model.train --out /model/artefacts

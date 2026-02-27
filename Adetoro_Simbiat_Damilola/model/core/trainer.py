@@ -1,9 +1,22 @@
+"""
+Check Me — Model Trainer (GradientBoosting / XGBoost-equivalent)
+================================================================
+Trains a Gradient Boosting Classifier on the augmented UCI breast cancer
+dataset. GradientBoostingClassifier is sklearn's native XGBoost-equivalent
+(same histogram-based boosting algorithm).
+
+To swap to true XGBoost, replace:
+    from sklearn.ensemble import GradientBoostingClassifier
+with:
+    from xgboost import XGBClassifier  (after: pip install xgboost)
+and rename clf__sample_weight → clf__sample_weight (same param name).
+"""
 
 import warnings
 
 import numpy as np
 import pandas as pd
-from xgboost import XGBClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import brier_score_loss, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import Pipeline
@@ -35,11 +48,11 @@ def train_model(df: pd.DataFrame) -> dict:
 
     pipeline = Pipeline([
         ("scaler", StandardScaler()),
-        ("clf", XGBClassifier(
-            n_estimators=100,       # reduced from 300 — same AUC, 3× faster
-            max_depth=3,            # shallower trees — less overfitting
-            learning_rate=0.1,      # higher than 0.05 — converges faster
-            subsample=0.8,          # stochastic boosting
+        ("clf", GradientBoostingClassifier(
+            n_estimators=100,
+            max_depth=3,
+            learning_rate=0.1,
+            subsample=0.8,
             min_samples_leaf=10,
             random_state=42,
         )),
@@ -79,7 +92,7 @@ def _permutation_importance(
     pipeline: Pipeline,
     X: pd.DataFrame,
     y: pd.Series,
-    n_repeats: int = 4,         # reduced from 8 — still reliable ranking
+    n_repeats: int = 4,
 ) -> dict[str, float]:
     """
     Permutation-based feature importance as AUC drop.

@@ -3,10 +3,15 @@ Check Me — Model Persistence
 ==============================
 Handles saving and loading the trained sklearn pipeline and metrics JSON.
 The model artefacts are written to a configurable directory (default: /model/artefacts).
+
+Uses joblib for pipeline serialisation — joblib is the recommended format for
+sklearn pipelines because it uses efficient numpy array pickling (mmap-friendly)
+and is significantly faster than plain pickle for large numpy arrays embedded in
+trained tree ensembles like GradientBoostingClassifier.
 """
 
 import json
-import pickle
+import joblib
 from pathlib import Path
 
 
@@ -18,8 +23,8 @@ def save_model(pipeline, metrics: dict, path: str | Path = _DEFAULT_PATH) -> Non
     out = Path(path)
     out.mkdir(parents=True, exist_ok=True)
 
-    with open(out / "pipeline.pkl", "wb") as f:
-        pickle.dump(pipeline, f)
+    # Save pipeline as .joblib (recommended for sklearn models)
+    joblib.dump(pipeline, out / "pipeline.joblib")
 
     with open(out / "metrics.json", "w") as f:
         json.dump(metrics, f, indent=2)
@@ -38,7 +43,7 @@ def load_model(path: str | Path = _DEFAULT_PATH) -> tuple:
         FileNotFoundError if artefacts are missing (model not yet trained).
     """
     src = Path(path)
-    pipeline_path = src / "pipeline.pkl"
+    pipeline_path = src / "pipeline.joblib"
     metrics_path  = src / "metrics.json"
 
     if not pipeline_path.exists() or not metrics_path.exists():
@@ -47,8 +52,7 @@ def load_model(path: str | Path = _DEFAULT_PATH) -> tuple:
             "Run 'python model/train.py' to train the model first."
         )
 
-    with open(pipeline_path, "rb") as f:
-        pipeline = pickle.load(f)
+    pipeline = joblib.load(pipeline_path)
 
     with open(metrics_path) as f:
         metrics = json.load(f)

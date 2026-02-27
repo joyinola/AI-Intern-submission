@@ -78,7 +78,7 @@ def main(out_dir: str = "model/artefacts") -> None:
     with open(out_path / "metrics.json", "w") as f:
         json.dump(metrics_export, f, indent=2)
 
-    print(f"      pipeline.pkl  ({(out_path / 'pipeline.pkl').stat().st_size / 1024:.0f} KB)")
+    print(f"      pipeline.joblib  ({(out_path / 'pipeline.joblib').stat().st_size / 1024:.0f} KB)")
     print(f"      metrics.json")
 
     print(f"""
