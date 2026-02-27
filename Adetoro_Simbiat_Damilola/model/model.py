@@ -33,11 +33,11 @@ from sklearn.preprocessing import StandardScaler
 warnings.filterwarnings("ignore")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # 1.  CLINICAL SAFETY FLAGS
 #     These are always evaluated and always surfaced to the clinician.
 #     They do NOT forcibly override the model but escalate to URGENT tier.
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 @dataclass
 class ClinicalFlag:
@@ -90,9 +90,9 @@ def evaluate_clinical_flags(row: dict) -> list[ClinicalFlag]:
     return unique
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # 2.  MODEL TRAINING
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 FEATURE_COLS = [
     "radius_mean", "texture_mean", "perimeter_mean", "area_mean",
@@ -191,9 +191,9 @@ def _permutation_importance(pipeline, X, y, n_repeats=8):
     return dict(sorted(importances.items(), key=lambda x: x[1], reverse=True))
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # 3.  RECOMMENDATION LOGIC
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 @dataclass
 class CheckMeDecision:
@@ -326,9 +326,9 @@ def make_decision(
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # 4.  PERSISTENCE
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 def save_model(pipeline, metrics, path="model/"):
     Path(path).mkdir(exist_ok=True)
@@ -346,9 +346,9 @@ def load_model(path="model/"):
     return pipeline, metrics
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # 5.  ENTRY POINT
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 if __name__ == "__main__":
     import sys

@@ -1,9 +1,3 @@
-"""
-Check Me — API Schemas
-========================
-Pydantic request/response models. Uses real UCI column names
-(mean_radius, worst_area, etc.) and 3-tier GREEN/YELLOW/RED system.
-"""
 
 from typing import Optional
 from pydantic import BaseModel, Field

@@ -1,13 +1,4 @@
-"""
-Check Me — Model Training Entry Point
-======================================
-Loads the augmented UCI dataset, trains the GradientBoosting model,
-evaluates it, and saves artefacts.
 
-Usage (both work):
-    python -m model.train                        # from /app (recommended)
-    python model/train.py                        # also works
-"""
 
 import argparse
 import json
@@ -25,7 +16,7 @@ if __name__ == "__main__" and __package__ is None:
     runpy.run_module("model.train", run_name="__main__", alter_sys=True)
     sys.exit(0)
 
-# ── Package-relative imports (active once __package__ is set) ────────────────
+# ── Package-relative imports (active once __package__ is set) 
 from .dataset import load_dataset
 from .core.trainer import train_model
 from .core.persistence import save_model

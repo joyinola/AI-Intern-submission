@@ -1,9 +1,3 @@
-"""
-Check Me — API Dependencies
-=============================
-Shared FastAPI dependencies. The trained model is loaded once at startup
-and injected into route handlers via dependency injection.
-"""
 
 import sys
 from pathlib import Path

@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-echo "============================================"
+
 echo "  Check Me — Starting up"
-echo "============================================"
+
 
 if [ ! -f /model/artefacts/pipeline.pkl ]; then
   echo "[1/2] WARNING: No artefacts found — training fallback..."

@@ -1,34 +1,3 @@
-"""
-Check Me — Dataset Loader
-==========================
-Loads the REAL UCI Wisconsin Breast Cancer Diagnostic dataset and augments
-it with synthetic clinical/demographic risk factors whose distributions
-are grounded in published epidemiological literature.
-
-Why augment the UCI dataset?
-  The UCI dataset contains only FNA (fine needle aspirate) nucleus measurements.
-  Real breast cancer risk assessment also requires clinical factors:
-  age, BMI, family history, BRCA mutation status, HRT use, etc.
-
-  Since these variables are not in the original UCI dataset, they are generated
-  with class-conditional distributions matching published prevalence data:
-    - ACS Cancer Facts & Figures 2023
-    - IARC Handbook on Breast Cancer (2012)
-    - NICE NG101 Familial Breast Cancer guidelines
-    - CDC BRCA Gene Mutations fact sheet
-
-  The FNA features are the REAL measured values from 569 actual patients.
-  The clinical features are synthetic augmentations — this is clearly documented.
-
-UCI Dataset Reference:
-  Wolberg, W.H., Street, W.N., & Mangasarian, O.L. (1995).
-  Breast Cancer Wisconsin (Diagnostic). UCI Machine Learning Repository.
-  https://doi.org/10.24432/C5DW2B
-
-Column renaming:
-  UCI original: 'mean radius', 'worst area', etc.
-  Our format:   'mean_radius', 'worst_area', etc. (underscores for pandas)
-"""
 
 import pathlib
 

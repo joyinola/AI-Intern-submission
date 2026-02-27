@@ -1,9 +1,3 @@
-"""
-Check Me — FastAPI Application
-================================
-Creates the FastAPI app, registers middleware, and includes all routers.
-Run with: uvicorn api.main:app --host 0.0.0.0 --port 8000
-"""
 
 from contextlib import asynccontextmanager
 
